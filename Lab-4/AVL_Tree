@@ -1,205 +1,167 @@
-#include<stdio.h>
-#include<stdlib.h>
-struct Node
+// implementation of avl tree , insertion and display
+
+#include<iostream>
+using namespace std;
+
+class Node
 {
-int key;
-struct Node *lft;
-struct Node *rgt;
-int height;
+	public:
+	int key;
+	Node *left;
+	Node *right;
+	int height;
 };
-int max(int a, int b);
-int height(struct Node *N)
+
+int height(Node *N)
 {
-if (N == NULL)
-return 0;
-return N->height;
+	if (N == NULL)
+		return 0;
+	return N->height;
 }
+
+
 int max(int a, int b)
 {
-return (a > b)? a : b;
-}
-struct Node* newNode(int key)
-{
-struct Node* node = (struct Node*)
-malloc(sizeof(struct Node));
-node->key   = key;
-node->lft   = NULL;
-node->rgt  = NULL;
-node->height = 1;
-return(node);
-}
-struct Node *rgtRotate(struct Node *y)
-{
-struct Node *x = y->lft;
-struct Node *T2 = x->rgt;
-x->rgt = y;
-y->lft = T2;
-y->height = max(height(y->lft), height(y->rgt))+1;
-x->height = max(height(x->lft), height(x->rgt))+1;
-return x;
-}
-struct Node *lftRotate(struct Node *x)
-{
-struct Node *y = x->rgt;
-struct Node *T2 = y->lft;
-y->lft = x;
-x->rgt = T2;
-x->height = max(height(x->lft), height(x->rgt))+1;
-y->height = max(height(y->lft), height(y->rgt))+1;
-return y;
-}
-int getBalance(struct Node *N)
-{
-if (N == NULL)
-return 0;
-return height(N->lft) - height(N->rgt);
-}
-struct Node* insert(struct Node* node, int key)
-{
-if (node == NULL)
-return(newNode(key));
-if (key < node->key)
-node->lft  = insert(node->lft, key);
-else if (key > node->key)
-node->rgt = insert(node->rgt, key);
-else
-return node;
-node->height = 1 + max(height(node->lft),
-height(node->rgt));
-int balance = getBalance(node);
-if (balance > 1 && key < node->lft->key)
-return rgtRotate(node);
-if (balance < -1 && key > node->rgt->key)
-return lftRotate(node);
-if (balance > 1 && key > node->lft->key)
-{
-node->lft =  lftRotate(node->lft);
-return rgtRotate(node);
-}
-if (balance < -1 && key < node->rgt->key)
-{
-node->rgt = rgtRotate(node->rgt);
-return lftRotate(node);
-}
-return node;
-}
-struct Node * minValueNode(struct Node* node)
-{
-struct Node* current = node;
-/* loop down to find the lftmost leaf */
-while (current->lft != NULL)
-current = current->lft;
-return current;
-}
-struct Node* deleteNode(struct Node* base, int key)
-{
-if (base == NULL)
-return base;
-if ( key < base->key )
-base->lft = deleteNode(base->lft, key);
-else if( key > base->key )
-base->rgt = deleteNode(base->rgt, key);
-else
-{
-if( (base->lft == NULL) || (base->rgt == NULL) )
-{
-struct Node *temp = base->lft ? base->lft :
-base->rgt;
-if (temp == NULL)
-{
-temp = base;
-base = NULL;
-}
-else
-*base = *temp;
-free(temp);
-}
-else
-{
-struct Node* temp = minValueNode(base->rgt);
-base->key = temp->key;
-base->rgt = deleteNode(base->rgt, temp->key);
-}
-}
-if (base == NULL)
-return base;
-base->height = 1 + max(height(base->lft),
-height(base->rgt));
-int balance = getBalance(base);
-if (balance > 1 && getBalance(base->lft) >= 0)
-return rgtRotate(base);
-if (balance > 1 && getBalance(base->lft) < 0)
-{
-base->lft =  lftRotate(base->lft);
-return rgtRotate(base);
-}
-if (balance < -1 && getBalance(base->rgt) <= 0)
-return lftRotate(base);
-if (balance < -1 && getBalance(base->rgt) > 0)
-{
-base->rgt = rgtRotate(base->rgt);
-return lftRotate(base);
+	return (a > b)? a : b;
 }
 
-return base;
+
+Node* newNode(int key)
+{
+	Node* node = new Node();
+	node->key = key;
+	node->left = NULL;
+	node->right = NULL;
+	node->height = 1; 
+	
+	return(node);
 }
 
-int search(struct Node *base,int key)
+
+Node *rightRotate(Node *y)
 {
-    if(base==NULL)
-      return -1;
-    else if(key==base->key)
-      return 1;
-    else if(key>base->key)
-       search(base->rgt,key);
-    else if(key<base->key)
-       search(base->lft,key);
-    
+	Node *x = y->left;
+	Node *T2 = x->right;
+
+
+	x->right = y;
+	y->left = T2;
+
+
+	y->height = max(height(y->left),
+					height(y->right)) + 1;
+	x->height = max(height(x->left),
+					height(x->right)) + 1;
+
+	return x;
 }
-void inOrder(struct Node *base)
+
+Node *leftRotate(Node *x)
 {
-if(base != NULL)
-{inOrder(base->lft);
-printf("%d ", base->key);
-inOrder(base->rgt);
+	Node *y = x->right;
+	Node *T2 = y->left;
+
+
+	y->left = x;
+	x->right = T2;
+
+
+	x->height = max(height(x->left),
+					height(x->right)) + 1;
+	y->height = max(height(y->left),
+					height(y->right)) + 1;
+
+	
+	return y;
 }
+
+
+int getBalance(Node *N)
+{
+	if (N == NULL)
+		return 0;
+	return height(N->left) - height(N->right);
 }
+
+
+Node* insert(Node* node, int key)
+{
+	
+	if (node == NULL)
+		return(newNode(key));
+
+	if (key < node->key)
+		node->left = insert(node->left, key);
+	else if (key > node->key)
+		node->right = insert(node->right, key);
+	else 
+		return node;
+
+	
+	node->height = 1 + max(height(node->left),
+						height(node->right));
+
+
+	int balance = getBalance(node);
+
+	
+	if (balance > 1 && key < node->left->key)
+		return rightRotate(node);
+
+
+	if (balance < -1 && key > node->right->key)
+		return leftRotate(node);
+
+	
+	if (balance > 1 && key > node->left->key)
+	{
+		node->left = leftRotate(node->left);
+		return rightRotate(node);
+	}
+
+	
+	if (balance < -1 && key < node->right->key)
+	{
+		node->right = rightRotate(node->right);
+		return leftRotate(node);
+	}
+
+
+	return node;
+}
+
+
+void display(Node *root)
+{
+	if(root != NULL)
+	{
+		cout << root->key << " ";
+		display(root->left);
+		display(root->right);
+	}
+}
+
+
 int main()
 {
-struct Node *base = NULL;
-int choice,data;
-   while(choice!=-1) {
-         printf("Make a choice\n");
-         printf(" 1 to insert\n");
-         printf(" 2 to deletion\n");
-         printf(" 3 to search\n");
-         printf(" 4 for print\n");
-        printf("Enter  : ");
-        scanf("%d", &choice);
-        if(choice == -1)
-            break;
-        switch(choice) {
-            case 1: printf("Enter the data : ");
-                    scanf("%d", &data);
-                    base = insert(base, data);
-                    break;
-            case 2: printf("Enter the key to delete :");
-                    scanf("%d", &data);
-                    base = deleteNode(base, data);
-                    break;
-            case 3: printf("Enter the key to be searched : ");
-                    scanf("%d", &data);
-                    if(search(base,data)!=1)
-                    printf("Element not found\n");
-                    else
-                    printf("%d is found in the tree\n",data);
-                    break;
-            case 4: if(base==NULL) {printf("Tree is empty\n");}
-                    inOrder(base);
-                    printf("\n");                   
-                    break;
-            default: printf("Invalid Selection\n");
-        }
-    }
-    return 0;
+	Node *root = NULL;
+	root = insert(root, 10);
+	root = insert(root, 20);
+	root = insert(root, 30);
+	root = insert(root, 40);
+	root = insert(root, 50);
+	root = insert(root, 25);
+	
+	/* The constructed AVL Tree 
+			 30
+			/ \
+		  20   40
+		/  \     \
+	  10   25    50
+	  
+	*/
+	cout << "displalying AVL tree is \n";
+	display(root);
+	
+	return 0;
 }
