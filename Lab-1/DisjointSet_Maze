@@ -1,81 +1,52 @@
-#include <iostream.h>  
-#include <conio.h>  
- int size=16;
- int parent[16];
+#include<iostream>
+#include<cstdlib>
+using namespace std;
 
-void create_list() 
-{
- for(int i=0;i<size;i++)
- {
-    parent[i]=i; 
- }
- cout << " \n printing parents :> \n ";
- for(int k=0;k<size;k++)
- {
-     cout << "parent of  "<< k << "is : " << parent[k] << "\n " ;
- }
- 
-}
-
-
-
-// find function  to fnd parent 
-
-int  find(int x)
-{
-   return parent[x]; 
-}
-
-// to find adjacent
-int check_adj(int i, int j)// i=0   j=1
-{
-    
-        if((i==j+4)||(i+1==j)||(i-1==j)||(i==j-4)) // if adjacent
-        {
-            cout << i << " and " << j << " are adjacent...\n ";
-            return 1;
-        }
-        else 
-        return 0;
-
-    
-}
-
-
-
-// function to perform union 
-void union(int p, int q){
-    if(check_adj(p,q))
-    {
-        if(find(p)==find(q)) 
-        {
-            return;
-        }
-        else
-        {
-           parent[q]=p;
-        }
+void makeset(int arr[],int n){
+    for(int i=0;i<n;i++){
+        arr[i]=i;
     }
 }
 
+int find(int x,int arr[]){
+    if(arr[x]==x){
+        return x;
+    }
+    return find(arr[x],arr);
+}
 
+void union1(int x1,int x2,int arr[]){
+    int temp1=find(x1,arr);
+    int temp2=find(x2,arr);
+    if(temp1==temp2){
+        return;
+    }
+    else{
+        arr[temp1]=temp2;
+    }
+}
 
-void main() {  
-   clrscr(); 
-   create_list();
-   
-   int i,j;
-   
-   for(i=0;i<size;i++){
-       for(j=0;j<size;j++){
-          
-                if(i!=j){
-                    union(i,j);
-                   
-                }
-           
-       }
-   }
-   
-   getch();  
-}  
+int main(){
+    int s;
+    cout<<"Enter the size of the maze : ";
+    cin>>s;
+    int n=s*s;
+    int dis_set[n];
+    makeset(dis_set,n);
+    while(find(dis_set[0],dis_set)!=find(dis_set[n-1],dis_set)){
+        int rand1=rand()%n;
+        int rand2=rand()%n;
+        int row1=rand1/s;
+        int row2=rand2/s;
+        int col1=rand1%s;
+        int col2=rand2%s;
+        if((row1==row2 && (rand1+1==rand2 || rand1-1==rand2)) || (col1==col2 && (rand1+s==rand2 || rand1-s==rand2))){
+            union1(rand1,rand2,dis_set);
+            cout<<rand1<<"   -   "<<rand2<<"\n";
+        }
+    }
+    cout<<"\n\n---";
+    for(int i=0;i<n;i++){
+        cout<<dis_set[i]<<"//";
+    }
+}
